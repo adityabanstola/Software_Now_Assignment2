@@ -100,6 +100,34 @@ def encrypt_file(shift1: int, shift2: int, input_path: str, output_path: str) ->
         f.write(encrypted)
 
 
+def decrypt_file(shift1: int, shift2: int, input_path: str, output_path: str) -> None:
+    """Read `input_path` (encrypted text), decrypt it, write to `output_path`."""
+    with open(input_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    decrypted = _transform_text(content, shift1, shift2, direction=-1)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(decrypted)
+
+
+def verify_files(original_path: str, decrypted_path: str) -> bool:
+    """Compare the original file with the decrypted file and report success."""
+    with open(original_path, "r", encoding="utf-8") as f:
+        original = f.read()
+    with open(decrypted_path, "r", encoding="utf-8") as f:
+        decrypted = f.read()
+
+    success = original == decrypted
+
+    if success:
+        print("Verification successful: decrypted text matches the original file.")
+    else:
+        print("Verification FAILED: decrypted text does NOT match the original file.")
+
+    return success
+
+
 # ---------------------------------------------------------------------------
 # Program entry point
 # ---------------------------------------------------------------------------
@@ -130,6 +158,10 @@ def main() -> None:
     encrypt_file(shift1, shift2, raw_path, encrypted_path)
     print(f"Encrypted '{raw_path}' -> '{encrypted_path}'")
 
+    decrypt_file(shift1, shift2, encrypted_path, decrypted_path)
+    print(f"Decrypted '{encrypted_path}' -> '{decrypted_path}'")
+
+    verify_files(raw_path, decrypted_path)
 
 
 if __name__ == "__main__":
