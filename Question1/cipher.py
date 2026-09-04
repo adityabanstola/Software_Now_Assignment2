@@ -37,19 +37,11 @@ are exact inverses of one another for any given (shift1, shift2) pair.
 from __future__ import annotations
 
 
-# ---------------------------------------------------------------------------
-# Low level helper
-# ---------------------------------------------------------------------------
-
 def _shift_char(ch: str, amount: int, base: int, size: int) -> str:
     """Shift a single character `amount` positions within an alphabet of
     `size` characters starting at ordinal `base` (wraps around)."""
     return chr((ord(ch) - base + amount) % size + base)
 
-
-# ---------------------------------------------------------------------------
-# Core transform (shared by encrypt/decrypt, direction = +1 or -1)
-# ---------------------------------------------------------------------------
 
 def _transform_char(ch: str, shift1: int, shift2: int, direction: int) -> str:
     """Transform a single character.
@@ -57,11 +49,7 @@ def _transform_char(ch: str, shift1: int, shift2: int, direction: int) -> str:
     direction = 1  -> encrypt (apply the shift as described in the spec)
     direction = -1 -> decrypt (apply the exact opposite shift)
     """
-    # NOTE: each half-range wraps *within itself* (not across the full
-    # 26-letter alphabet). This keeps every shifted character inside the
-    # same half it started in, which is what makes decrypt_file() able to
-    # unambiguously reverse the transform (it re-checks which half the
-    # character falls into and undoes the matching shift).
+
     if "a" <= ch <= "n":  # 14 letters: a..n
         amount = (shift1 * shift2) * direction
         return _shift_char(ch, amount, ord("a"), 14)
@@ -85,9 +73,6 @@ def _transform_text(text: str, shift1: int, shift2: int, direction: int) -> str:
     return "".join(_transform_char(c, shift1, shift2, direction) for c in text)
 
 
-# ---------------------------------------------------------------------------
-# Required public interface
-# ---------------------------------------------------------------------------
 
 def encrypt_file(shift1: int, shift2: int, input_path: str, output_path: str) -> None:
     """Read `input_path`, encrypt its contents, write to `output_path`."""
@@ -128,9 +113,6 @@ def verify_files(original_path: str, decrypted_path: str) -> bool:
     return success
 
 
-# ---------------------------------------------------------------------------
-# Program entry point
-# ---------------------------------------------------------------------------
 
 def _read_shift(prompt: str) -> int:
     """Prompt the user until a valid non-negative integer is entered."""
